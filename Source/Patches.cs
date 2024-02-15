@@ -73,6 +73,56 @@ namespace OnlyTame
         }
     }
 
+    // Need to optionally pass the wild egg as forbidden tag when creating fetches.
+    // (This is base class of EggIncubator.)
+    [HarmonyPatch(typeof(SingleEntityReceptacle))]
+    public class SingleEntityReceptacle_Patch
+    {
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(CreateFetchChore))]
+        public static IEnumerable<CodeInstruction> CreateFetchChore(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            bool found = false;
+            for( int i = 0; i < codes.Count; ++i )
+            {
+                // Debug.Log("T:" + i + ":" + codes[i].opcode + "::" + (codes[i].operand != null ? codes[i].operand.ToString() : codes[i].operand));
+                // The function has code:
+                // fetchChore = new FetchChore(choreType, ..., null, null, run_until_complete: true, OnFetchComplete, ...
+                // Change to:
+                // fetchChore = new FetchChore(choreType, ..., CreateFetchChore_Hook( this ), null, run_until_complete: true, OnFetchComplete, ...
+                if( codes[ i ].opcode == OpCodes.Ldnull // the null to replace
+                    && i + 4 < codes.Count
+                    && codes[ i + 1 ].opcode == OpCodes.Ldnull
+                    && codes[ i + 2 ].opcode == OpCodes.Ldc_I4_1
+                    && codes[ i + 3 ].opcode == OpCodes.Ldarg_0
+                    && codes[ i + 4 ].opcode == OpCodes.Ldftn
+                    && codes[ i + 4 ].operand.ToString() == "Void OnFetchComplete(Chore)" )
+                {
+                    // The original code has a label at the first instruction (because of the conditional operator
+                    // before it), so instead of replacing it, pop it to ignore it.
+                    codes.Insert( i + 1, new CodeInstruction( OpCodes.Pop )); // drop the useless null
+                    codes.Insert( i + 2, new CodeInstruction( OpCodes.Ldarg_0 )); // load 'this'
+                    codes.Insert( i + 3, new CodeInstruction( OpCodes.Call,
+                        typeof( SingleEntityReceptacle_Patch ).GetMethod( nameof( CreateFetchChore_Hook ))));
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+                Debug.LogWarning("OnlyTame: Failed to patch SingleEntityReceptacle.SingleEntityReceptacle()");
+            return codes;
+        }
+
+        public static Tag[] CreateFetchChore_Hook( SingleEntityReceptacle receptable )
+        {
+            OnlyTameFilter onlyTameFilter = receptable.GetComponent< OnlyTameFilter >();
+            if( onlyTameFilter == null )
+                return null;
+            return onlyTameFilter.ForbiddenTags( null );
+        }
+    }
+
     // Eggs normally do not have any tag for wild the way critters do. Filtering on the actual
     // wildness value seems difficult, so instead tag all eggs as wild when creating them
     // and remove it for non-wild ones.
@@ -159,6 +209,17 @@ namespace OnlyTame
 
     [HarmonyPatch(typeof(EggCrackerConfig))]
     public class EggCrackerConfig_Patch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(DoPostConfigureComplete))]
+        public static void DoPostConfigureComplete(GameObject go)
+        {
+            go.AddOrGet<OnlyTameFilter>();
+        }
+    }
+
+    [HarmonyPatch(typeof(EggIncubatorConfig))]
+    public class EggIncubatorConfig_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(DoPostConfigureComplete))]

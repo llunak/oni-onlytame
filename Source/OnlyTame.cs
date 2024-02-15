@@ -41,6 +41,17 @@ namespace OnlyTame
                 CreatureDeliveryPoint delivery = GetComponent< CreatureDeliveryPoint >();
                 if( delivery != null )
                     deliveryOnFilterChanged.Invoke( delivery, new Type[] { null } );
+                EggIncubator incubator = GetComponent< EggIncubator >();
+                if( incubator != null )
+                {
+                    if( incubator.GetActiveRequest != null )
+                    {
+                        Tag requestedEntityTag = incubator.requestedEntityTag;
+                        Tag requestedEntityAdditionalFilterTag = incubator.requestedEntityAdditionalFilterTag;
+                        incubator.CancelActiveRequest();
+                        incubator.CreateOrder( requestedEntityTag, requestedEntityAdditionalFilterTag );
+                    }
+                }
             }
         }
 
