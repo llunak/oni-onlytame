@@ -4,7 +4,7 @@ namespace STRINGS
 {
     public class ONLYTAME
     {
-        public static LocString TEXT = "Only Tame";
-        public static LocString TOOLTIP = "Only accept critters/eggs that are tame";
+        public static LocString CHECKBOX = "Only Tame";
+        public static LocString CHECKBOX_TOOLTIP = "Only accept critters/eggs that are tame";
     }
 }

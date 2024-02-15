@@ -239,27 +239,4 @@ namespace OnlyTame
             go.AddOrGet<OnlyTameFilter>();
         }
     }
-
-    // SingleCheckboxSideScreen does not allow overriding GetSideScreenSortOrder(),
-    // so it uses the default 0 order, which puts the checkbox too high.
-    [HarmonyPatch(typeof(SideScreenContent))]
-    public class SideScreenContent_Patch
-    {
-        private static FieldInfo targetField = AccessTools.Field( typeof(SingleCheckboxSideScreen), "target" );
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(GetSideScreenSortOrder))]
-        public static bool GetSideScreenSortOrder(ref int __result, SideScreenContent __instance)
-        {
-            SingleCheckboxSideScreen checkSideScreen = __instance as SingleCheckboxSideScreen;
-            if( checkSideScreen == null )
-                return true;
-            ICheckboxControl checkboxControl = (ICheckboxControl)targetField.GetValue( checkSideScreen );
-            OnlyTameFilter onlyTame = checkboxControl as OnlyTameFilter;
-            if( onlyTame == null )
-                return true;
-            __result = -1;
-            return false; // skip original
-        }
-    }
 }

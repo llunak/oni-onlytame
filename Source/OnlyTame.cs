@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace OnlyTame
 {
-    public class OnlyTameFilter : KMonoBehaviour, ICheckboxControl
+    public class OnlyTameFilter : KMonoBehaviour
     {
         public static readonly Tag WildEgg = TagManager.Create("OnlyTame:WildEgg");
         public static readonly Tag WildEggChecked = TagManager.Create("OnlyTame:WildEggChecked");
@@ -91,17 +91,6 @@ namespace OnlyTame
             if( fabricatorForbiddenTags.Length == 1 && fabricatorForbiddenTags[ 0 ] == GameTags.MutatedSeed )
                 return wildMutatedSeedForbiddenTags;
             return fabricatorForbiddenTags.Append( wildForbiddenTags );
-        }
-
-        // ICheckboxControl
-        public string CheckboxTitleKey => "";
-        public string CheckboxLabel => STRINGS.ONLYTAME.TEXT;
-        public string CheckboxTooltip => STRINGS.ONLYTAME.TOOLTIP;
-
-        public bool GetCheckboxValue() => OnlyTameEnabled;
-        public void SetCheckboxValue(bool value)
-        {
-            OnlyTameEnabled = value;
         }
     }
 }
