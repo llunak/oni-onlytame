@@ -15,6 +15,8 @@ namespace OnlyTame
 
         private static MethodInfo fabricatorCancelFetches = AccessTools.Method( typeof( ComplexFabricator ), "CancelFetches" );
         private static MethodInfo deliveryOnFilterChanged = AccessTools.Method( typeof( CreatureDeliveryPoint ), "OnFilterChanged" );
+        private static FieldInfo filteredStorageSolidConduitInbox = AccessTools.Field( typeof( SolidConduitInbox ), "filteredStorage" );
+        private static FieldInfo filteredStorageObjectDispenser = AccessTools.Field( typeof( ObjectDispenser ), "filteredStorage" );
 
         [Serialize]
         private bool onlyTameEnabled = false;
@@ -51,6 +53,20 @@ namespace OnlyTame
                         incubator.CancelActiveRequest();
                         incubator.CreateOrder( requestedEntityTag, requestedEntityAdditionalFilterTag );
                     }
+                }
+                FilteredStorage filteredStorage = null;
+                SolidConduitInbox solidConduitInbox = GetComponent< SolidConduitInbox >();
+                if( solidConduitInbox != null )
+                    filteredStorage = (FilteredStorage)filteredStorageSolidConduitInbox.GetValue( solidConduitInbox );
+                ObjectDispenser objectDispenser = GetComponent< ObjectDispenser >();
+                if( objectDispenser != null )
+                    filteredStorage = (FilteredStorage)filteredStorageObjectDispenser.GetValue( objectDispenser );
+                if( filteredStorage != null )
+                {
+                    if( onlyTameEnabled )
+                        filteredStorage.AddForbiddenTag( WildEgg );
+                    else
+                        filteredStorage.RemoveForbiddenTag( WildEgg );
                 }
             }
         }

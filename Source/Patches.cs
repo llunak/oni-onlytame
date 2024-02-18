@@ -239,4 +239,32 @@ namespace OnlyTame
             go.AddOrGet<OnlyTameFilter>();
         }
     }
+
+    [HarmonyPatch(typeof(SolidConduitInboxConfig))]
+    public class SolidConduitInboxConfig_Patch
+    {
+        [HarmonyPrepare]
+        public static bool Prepare() => Options.Instance.AddFilterToConveyorLoader;
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(DoPostConfigureComplete))]
+        public static void DoPostConfigureComplete(GameObject go)
+        {
+            go.AddOrGet<OnlyTameFilter>();
+        }
+    }
+
+    [HarmonyPatch(typeof(ObjectDispenserConfig))]
+    public class ObjectDispenserConfig_Patch
+    {
+        [HarmonyPrepare]
+        public static bool Prepare() => Options.Instance.AddFilterToAutomaticDispenser;
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(DoPostConfigureComplete))]
+        public static void DoPostConfigureComplete(GameObject go)
+        {
+            go.AddOrGet<OnlyTameFilter>();
+        }
+    }
 }
