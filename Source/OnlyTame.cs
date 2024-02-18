@@ -32,42 +32,47 @@ namespace OnlyTame
                 if( onlyTameEnabled == value )
                     return;
                 onlyTameEnabled = value;
-                // Need to force the building to possibly discard now-invalid fetches,
-                // cancelling all fetches is the best I can reasonably come up.
-                ComplexFabricator fabricator = GetComponent< ComplexFabricator >();
-                if( fabricator != null )
+                applyOnlyTame();
+            }
+        }
+
+        private void applyOnlyTame()
+        {
+            // Need to force the building to possibly discard now-invalid fetches,
+            // cancelling all fetches is the best I can reasonably come up.
+            ComplexFabricator fabricator = GetComponent< ComplexFabricator >();
+            if( fabricator != null )
+            {
+                fabricatorCancelFetches.Invoke( fabricator, null );
+                fabricator.SetQueueDirty();
+            }
+            CreatureDeliveryPoint delivery = GetComponent< CreatureDeliveryPoint >();
+            if( delivery != null )
+                deliveryOnFilterChanged.Invoke( delivery, new Type[] { null } );
+            EggIncubator incubator = GetComponent< EggIncubator >();
+            if( incubator != null )
+            {
+                if( incubator.GetActiveRequest != null )
                 {
-                    fabricatorCancelFetches.Invoke( fabricator, null );
-                    fabricator.SetQueueDirty();
+                    Tag requestedEntityTag = incubator.requestedEntityTag;
+                    Tag requestedEntityAdditionalFilterTag = incubator.requestedEntityAdditionalFilterTag;
+                    incubator.CancelActiveRequest();
+                    incubator.CreateOrder( requestedEntityTag, requestedEntityAdditionalFilterTag );
                 }
-                CreatureDeliveryPoint delivery = GetComponent< CreatureDeliveryPoint >();
-                if( delivery != null )
-                    deliveryOnFilterChanged.Invoke( delivery, new Type[] { null } );
-                EggIncubator incubator = GetComponent< EggIncubator >();
-                if( incubator != null )
-                {
-                    if( incubator.GetActiveRequest != null )
-                    {
-                        Tag requestedEntityTag = incubator.requestedEntityTag;
-                        Tag requestedEntityAdditionalFilterTag = incubator.requestedEntityAdditionalFilterTag;
-                        incubator.CancelActiveRequest();
-                        incubator.CreateOrder( requestedEntityTag, requestedEntityAdditionalFilterTag );
-                    }
-                }
-                FilteredStorage filteredStorage = null;
-                SolidConduitInbox solidConduitInbox = GetComponent< SolidConduitInbox >();
-                if( solidConduitInbox != null )
-                    filteredStorage = (FilteredStorage)filteredStorageSolidConduitInbox.GetValue( solidConduitInbox );
-                ObjectDispenser objectDispenser = GetComponent< ObjectDispenser >();
-                if( objectDispenser != null )
-                    filteredStorage = (FilteredStorage)filteredStorageObjectDispenser.GetValue( objectDispenser );
-                if( filteredStorage != null )
-                {
-                    if( onlyTameEnabled )
-                        filteredStorage.AddForbiddenTag( WildEgg );
-                    else
-                        filteredStorage.RemoveForbiddenTag( WildEgg );
-                }
+            }
+            FilteredStorage filteredStorage = null;
+            SolidConduitInbox solidConduitInbox = GetComponent< SolidConduitInbox >();
+            if( solidConduitInbox != null )
+                filteredStorage = (FilteredStorage)filteredStorageSolidConduitInbox.GetValue( solidConduitInbox );
+            ObjectDispenser objectDispenser = GetComponent< ObjectDispenser >();
+            if( objectDispenser != null )
+                filteredStorage = (FilteredStorage)filteredStorageObjectDispenser.GetValue( objectDispenser );
+            if( filteredStorage != null )
+            {
+                if( onlyTameEnabled )
+                    filteredStorage.AddForbiddenTag( WildEgg );
+                else
+                    filteredStorage.RemoveForbiddenTag( WildEgg );
             }
         }
 
@@ -81,6 +86,12 @@ namespace OnlyTame
         {
             base.OnPrefabInit();
             Subscribe((int)GameHashes.CopySettings, OnCopySettingsDelegate);
+        }
+
+        protected override void OnSpawn()
+        {
+            base.OnSpawn();
+            applyOnlyTame();
         }
 
         public void OnCopySettings( object data )
