@@ -3,7 +3,7 @@
     <OutputPath>..\</OutputPath>
     <TargetFramework>net471</TargetFramework>
     <AssemblyTitle>Only Tame</AssemblyTitle>
-    <AssemblyVersion>2024.0218.2</AssemblyVersion>
+    <AssemblyVersion>2024.0301.1</AssemblyVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
