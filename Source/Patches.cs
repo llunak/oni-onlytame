@@ -240,6 +240,17 @@ namespace OnlyTame
         }
     }
 
+    [HarmonyPatch(typeof(CritterDropOffConfig))]
+    public class CritterDropOffConfig_Patch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(DoPostConfigureComplete))]
+        public static void DoPostConfigureComplete(GameObject go)
+        {
+            go.AddOrGet<OnlyTameFilter>();
+        }
+    }
+
     [HarmonyPatch(typeof(SolidConduitInboxConfig))]
     public class SolidConduitInboxConfig_Patch
     {
