@@ -278,4 +278,15 @@ namespace OnlyTame
             go.AddOrGet<OnlyTameFilter>();
         }
     }
+
+    [HarmonyPatch(typeof(SpecialCargoBayClusterConfig))]
+    public class SpecialCargoBayClusterConfig_Patch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(DoPostConfigureComplete))]
+        public static void DoPostConfigureComplete(GameObject go)
+        {
+            go.AddOrGet<OnlyTameFilter>();
+        }
+    }
 }
