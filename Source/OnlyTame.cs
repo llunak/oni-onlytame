@@ -49,15 +49,21 @@ namespace OnlyTame
             CreatureDeliveryPoint delivery = GetComponent< CreatureDeliveryPoint >();
             if( delivery != null )
                 deliveryOnFilterChanged.Invoke( delivery, new Type[] { null } );
+            SingleEntityReceptacle singleEntityReceptacle = null;
             EggIncubator incubator = GetComponent< EggIncubator >();
             if( incubator != null )
+                singleEntityReceptacle = incubator;
+            SpecialCargoBayClusterReceptacle cargoBayReceptacle = GetComponent< SpecialCargoBayClusterReceptacle >();
+            if( cargoBayReceptacle != null )
+                singleEntityReceptacle = cargoBayReceptacle;
+            if( singleEntityReceptacle != null )
             {
-                if( incubator.GetActiveRequest != null )
+                if( singleEntityReceptacle.GetActiveRequest != null )
                 {
-                    Tag requestedEntityTag = incubator.requestedEntityTag;
-                    Tag requestedEntityAdditionalFilterTag = incubator.requestedEntityAdditionalFilterTag;
-                    incubator.CancelActiveRequest();
-                    incubator.CreateOrder( requestedEntityTag, requestedEntityAdditionalFilterTag );
+                    Tag requestedEntityTag = singleEntityReceptacle.requestedEntityTag;
+                    Tag requestedEntityAdditionalFilterTag = singleEntityReceptacle.requestedEntityAdditionalFilterTag;
+                    singleEntityReceptacle.CancelActiveRequest();
+                    singleEntityReceptacle.CreateOrder( requestedEntityTag, requestedEntityAdditionalFilterTag );
                 }
             }
             FilteredStorage filteredStorage = null;
