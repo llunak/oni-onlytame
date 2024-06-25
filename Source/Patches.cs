@@ -43,14 +43,14 @@ namespace OnlyTame
                 // Change to:
                 // FetchOrder2 fetchOrder = new FetchOrder2(creatureFetch, tags, FetchChore.MatchCriteria.MatchID,
                 //     GameTags.Creatures.Deliverable, null, component, ... );
-                if( codes[ i ].opcode == OpCodes.Ldloc_1
+                if( codes[ i ].IsLdloc()
                     && i + 5 < codes.Count
-                    && codes[ i + 1 ].opcode == OpCodes.Ldloc_0
+                    && codes[ i + 1 ].IsLdloc()
                     && codes[ i + 2 ].opcode == OpCodes.Ldc_I4_0
                     && codes[ i + 3 ].opcode == OpCodes.Ldsfld
                     && codes[ i + 3 ].operand.ToString().Contains( "Tag Deliverable" )
                     && codes[ i + 4 ].opcode == OpCodes.Ldnull // the null to replace
-                    && codes[ i + 5 ].opcode == OpCodes.Ldloc_2 )
+                    && codes[ i + 5 ].IsLdloc())
                 {
                     codes[ i + 4 ] = new CodeInstruction( OpCodes.Ldarg_0 ); // replace null with load of 'this'
                     codes.Insert( i + 5, new CodeInstruction( OpCodes.Call,
@@ -136,7 +136,6 @@ namespace OnlyTame
             MethodInfo info = AccessTools.Method( typeof( EggConfig ), "CreateEgg",
                 new Type[] { typeof( string ), typeof( string ), typeof( string ), typeof( Tag ), typeof( string ),
                     typeof( float ), typeof( int ), typeof( float ), typeof( string[] ) } );
-            Debug.Log("XXX:" + info);
             if( info != null )
                 return info;
             // The original method that (that is obsolete and calling the new one in the new version).
