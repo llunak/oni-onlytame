@@ -129,17 +129,15 @@ namespace OnlyTame
     [HarmonyPatch(typeof(EggConfig))]
     public class EggConfig_Patch
     {
-        [HarmonyTargetMethod]
-        static MethodBase CalculateMethod()
+        [HarmonyTargetMethods]
+        static IEnumerable<MethodBase> CalculateMethods()
         {
-            // New replacement overload added in u52-616718.
-            MethodInfo info = AccessTools.Method( typeof( EggConfig ), "CreateEgg",
-                new Type[] { typeof( string ), typeof( string ), typeof( string ), typeof( Tag ), typeof( string ),
-                    typeof( float ), typeof( int ), typeof( float ), typeof( string[] ) } );
-            if( info != null )
-                return info;
-            // The original method that (that is obsolete and calling the new one in the new version).
-            return AccessTools.Method( typeof( EggConfig ), "CreateEgg" );
+            // The CreateEgg() function apparently gets more and more overloads,
+            // so simply patch them all (which is harmless, as it's adding a tag, but missing
+            // a new overload would fail to mark an egg as wild).
+            foreach( MethodInfo info in AccessTools.GetDeclaredMethods( typeof( EggConfig )))
+                if( info.Name == "CreateEgg" )
+                    yield return info;
         }
 
         [HarmonyPostfix]
