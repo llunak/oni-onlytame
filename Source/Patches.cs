@@ -161,7 +161,7 @@ namespace OnlyTame
             if( egg == null )
                 return;
             egg.AddTag( OnlyTameFilter.WildEggChecked );
-            if( Db.Get().Amounts.Wildness.Lookup(__instance.gameObject).value == 0 )
+            if( Db.Get().Amounts.Wildness.Lookup(__instance.gameObject)?.value == 0 )
                 egg.RemoveTag( OnlyTameFilter.WildEgg );
         }
     }
@@ -208,7 +208,7 @@ namespace OnlyTame
                 return;
             foreach( GameObject egg in IncubationMonitor_Instance_Patch.eggsToCheck )
             {
-                if( Db.Get().Amounts.Wildness.Lookup( egg ).value > 0 )
+                if( Db.Get().Amounts.Wildness.Lookup( egg )?.value > 0 )
                     egg.AddTag( OnlyTameFilter.WildEgg );
                 else
                     egg.RemoveTag( OnlyTameFilter.WildEgg );
